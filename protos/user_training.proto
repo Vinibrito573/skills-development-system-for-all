@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+//Creating the name of the package
+package usertraining;
+
+//Service that will be responsible for managing user training above
+service UserTrainingService{
+
+//Unary RPC: Assigning training to user
+    rpc AssignTraining (TrainingRequest) returns (TrainingResponse);
+}
+
+//Here is the message containing user and training details
+message TrainingRequest{
+    int32 userId=1; //this is the unique identification of the user
+    string dateOfBirth=2; //User's date of birth
+    string employmentStatus= 3; //storing the current employment status from the user
+    string trainingTitle =4; //Name of the training
+    string category =5; //Type of the training
+    string dueDate =6; //Due date for completing the training
+}
+
+//After the user assign for a training, then we will be returning a message
+message TrainingResponse{
+    string enrollmentId=1; //ID for this enrolment
+    bool success=2; //Here will return if the enrolment was sucessfull
+    string message=3; //Returning confirmation or if any error
+}
+
