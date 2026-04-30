@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+// Creating the name of the package
+package activitynotification;
+
+// Service that will be responsible for handling user activities and live support
+service ActivityNotificationService{
+    // Client-side streaming RPC, Client sends multiple user activities and receives one summary at the end
+    rpc UploadUserActivity (stream UserActivity) returns (ActivitySummary);
+
+// Bidirectional streaming RPC, Client and Server interacts via messages on a live chat
+rpc LiveSupportChat (stream SupportMessage) returns(stream SupportMessage);
+}
+
+// User activity - Message sent from client to server
+message UserActivity {
+  int32 userId= 1; // User ID
+  string activityType = 2; // Type of activity, such as login, module, quiz.
+  int32 score = 3; //Score, if needed
+}
+
+//Summary - Final response from server
+message ActivitySummary {
+  int32 totalActivities= 1; //Total number of activities received
+  int32 averageScore= 2; //Showing the average score calculated
+  string badgeEarned= 3; // Assigning badge according to performance
+}
+
+// Bidirectional - Message used for live chat
+message SupportMessage {
+  int32 userId= 1; // User ID
+  string message= 2; // Message (content of it)
+  string sender= 3; // "user" or "support"
+}

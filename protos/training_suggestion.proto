@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+//Creating the name of the package
+package trainingsuggestion;
+
+//Service that will be responsible for recommending training to users
+service TrainingSuggestionService{
+
+//The part below sends multiple training recommendations, it is the server-side streaming (RPC)
+rpc StreamRecommendedTrainings(UserProfile) returns (stream TrainingRecommendation);
+}
+
+//Variables that were sent by Client, when they were setting up their profile
+message UserProfile {
+    int32 userId = 1;// User Id
+    string ageGroup = 2; //Age Group
+    string employmentStatus = 3; //Current employment status
+    string skillLevel = 4;//User skill Level, regarding technology
+}
+
+//Training recommendation that will be sent by the server
+message TrainingRecommendation {
+    int32 trainingId= 1; //Training Id
+    string trainingTitle= 2; //Name of the recommended training
+    string reason= 3; //Giving the reason why recommending the training
+    int32 durationHours = 4; //Estimated training duration
+}
