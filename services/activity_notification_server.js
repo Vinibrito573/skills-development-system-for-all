@@ -61,12 +61,40 @@ call.on("data", (activity) => {
   });
 }
 
+// Below is the implementation of the bidirectional streaming RPC, so client can send and receive messages
+function liveSupportChat(call){
+
+  // The below will run every time the client sends a message on the chat
+  call.on("data", (message) => {
+    console.log("Your message was received:", message);
+
+    // Response that will be sent back to the client
+    call.write({
+      userId: message.userId,
+      message: "Support: We have received your message " + message.message,
+      sender: "support"
+    });
+  });
+
+  // This runs when the client ends the chat
+  call.on("end", () =>{
+    console.log("Chat ended");
+    call.end();
+  });
+
+  // Error handling
+  call.on("error", (error) =>{
+    console.error("Error:", error);
+  });
+}
+
 // Setting the server
 //Creating a new gRPC server
 const server = new grpc.Server();
 
 server.addService(activityProto.ActivityNotificationService.service, {
-  UploadUserActivity: uploadUserActivity
+  UploadUserActivity: uploadUserActivity,
+  LiveSupportChat: liveSupportChat
 });
 
 // Port 50053 for this service

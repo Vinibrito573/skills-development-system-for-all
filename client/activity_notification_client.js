@@ -15,9 +15,7 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH);
 const activityProto= grpc.loadPackageDefinition(packageDefinition).activitynotification;
 
 // Creating client side
-const client = new activityProto.ActivityNotificationService(
-    "localhost:50053",
-    grpc.credentials.createInsecure()
+const client = new activityProto.ActivityNotificationService( "localhost:50053", grpc.credentials.createInsecure()
 );
 
 // Calling the client-side streaming RPC
