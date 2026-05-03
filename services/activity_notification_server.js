@@ -51,7 +51,8 @@ call.on("data", (activity) => {
     callback(null, {
         totalActivities: totalActivities,
         averageScore: averageScore,
-        badgeEarned: badge
+        badgeEarned: badge,
+        message: "You have completed " + totalActivities + " activities with an average score of " + averageScore + ". Keep it up!"
     });
   });
 
@@ -103,6 +104,5 @@ server.bindAsync(
   grpc.ServerCredentials.createInsecure(),
   function () {
     console.log("Activity Notification Service running on port 50053");
-    server.start();
   }
 );

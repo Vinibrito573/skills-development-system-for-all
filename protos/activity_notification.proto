@@ -17,6 +17,7 @@ message UserActivity {
   int32 userId= 1; // User ID
   string activityType = 2; // Type of activity, such as login, module, quiz.
   int32 score = 3; //Score, if needed
+  string timestamp = 4; //date and time of activity
 }
 
 //Summary - Final response from server
@@ -24,6 +25,7 @@ message ActivitySummary {
   int32 totalActivities= 1; //Total number of activities received
   int32 averageScore= 2; //Showing the average score calculated
   string badgeEarned= 3; // Assigning badge according to performance
+  string message = 4; Summary feedback message for the user
 }
 
 // Bidirectional - Message used for live chat

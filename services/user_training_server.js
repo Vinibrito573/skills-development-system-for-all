@@ -72,7 +72,6 @@ server.bindAsync( "0.0.0.0:50051",
     grpc.ServerCredentials.createInsecure(),
     function (){
         console.log ("This User Training Service is running on port 50051");
-        server.start();
     }
 );
 

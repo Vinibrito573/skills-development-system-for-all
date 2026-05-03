@@ -77,6 +77,5 @@ server.bindAsync(
     grpc.ServerCredentials.createInsecure(),
     function () {
     console.log("Training Suggestion Service running on port 50052");
-    server.start();
   }
 );
