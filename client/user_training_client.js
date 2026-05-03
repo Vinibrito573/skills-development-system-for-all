@@ -20,10 +20,13 @@ const packageDefinition =protoLoader.loadSync(PROTO_PATH);
 const userTrainingProto=grpc.loadPackageDefinition(packageDefinition).usertraining;
 
 //Setting Client
+// Creating client, using the list of address in: naming_service
+const { getService } = require("../naming_service");
+const client = new activityProto.ActivityNotificationService(
+  getService("activityNotification"),
+  grpc.credentials.createInsecure()
+);
 
-//Creating a client that will be able to connect to User Training Service which will be ruinning in port 50051
-const client = new userTrainingProto.UserTrainingService("localhost:50051", //server port and address
-  grpc.credentials.createInsecure());
 
 //Below we will be requesting the data
 const request = {

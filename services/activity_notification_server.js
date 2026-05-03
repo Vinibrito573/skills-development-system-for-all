@@ -72,7 +72,7 @@ function liveSupportChat(call){
     // Response that will be sent back to the client
     call.write({
       userId: message.userId,
-      message: "Support: We have received your message " + message.message,
+      messageText: "Support: We have received your message " + message.messageText,
       sender: "support"
     });
   });

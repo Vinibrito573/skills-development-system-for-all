@@ -25,12 +25,12 @@ message ActivitySummary {
   int32 totalActivities= 1; //Total number of activities received
   int32 averageScore= 2; //Showing the average score calculated
   string badgeEarned= 3; // Assigning badge according to performance
-  string message = 4; Summary feedback message for the user
+  string message = 4; //Summary feedback message for the user
 }
 
 // Bidirectional - Message used for live chat
 message SupportMessage {
   int32 userId= 1; // User ID
-  string message= 2; // Message (content of it)
+  string messageText= 2; // Message (content of it)
   string sender= 3; // "user" or "support"
 }

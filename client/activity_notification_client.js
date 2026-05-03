@@ -14,8 +14,11 @@ const PROTO_PATH= path.join(__dirname, "../protos/activity_notification.proto");
 const packageDefinition = protoLoader.loadSync(PROTO_PATH);
 const activityProto= grpc.loadPackageDefinition(packageDefinition).activitynotification;
 
-// Creating client side
-const client = new activityProto.ActivityNotificationService( "localhost:50053", grpc.credentials.createInsecure()
+// Creating client, using the list of address in: naming_service
+const { getService } = require("../naming_service");
+const client = new activityProto.ActivityNotificationService(
+  getService("activityNotification"),
+  grpc.credentials.createInsecure()
 );
 
 // Calling the client-side streaming RPC

@@ -16,8 +16,12 @@ const PROTO_PATH = path.join(__dirname, "../protos/activity_notification.proto")
 const packageDefinition = protoLoader.loadSync(PROTO_PATH);
 const activityProto = grpc.loadPackageDefinition(packageDefinition).activitynotification;
 
-// Creating client with local host 50053
-const client = new activityProto.ActivityNotificationService( "localhost:50053", grpc.credentials.createInsecure()
+
+// Creating client, using the list of address in: naming_service
+const { getService } = require("../naming_service");
+const client = new activityProto.ActivityNotificationService(
+  getService("activityNotification"),
+  grpc.credentials.createInsecure()
 );
 
 //Bidirectional streaming call
@@ -25,7 +29,7 @@ const call = client.LiveSupportChat();
 
 // Receive messages from the server
 call.on("data", (response) => {
-  console.log(response.sender + ": " + response.message);
+  console.log(response.sender + ": " + response.messageText);
 });
 
 // Ending chat by the server
@@ -53,7 +57,7 @@ rl.on("line", (messageText) => {
   } else {
     call.write({
       userId: 1,
-      message: messageText,
+      messageText: messageText,
       sender: "user"
     });
   }

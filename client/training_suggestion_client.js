@@ -16,8 +16,11 @@ const PROTO_PATH= path.join(__dirname,"../protos/training_suggestion.proto");
 const packageDefinition =protoLoader.loadSync(PROTO_PATH);
 const trainingSuggestionProto= grpc.loadPackageDefinition(packageDefinition).trainingsuggestion;
 
-//Creating a client that connects to the Training Suggestion Service on port 50052
-const client = new trainingSuggestionProto.TrainingSuggestionService("localhost:50052",grpc.credentials.createInsecure()
+// Creating client, using the list of address in: naming_service
+const { getService } = require("../naming_service");
+const client = new activityProto.ActivityNotificationService(
+  getService("activityNotification"),
+  grpc.credentials.createInsecure()
 );
 
 //User profile sent to the server
