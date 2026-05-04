@@ -22,8 +22,8 @@ const userTrainingProto=grpc.loadPackageDefinition(packageDefinition).usertraini
 //Setting Client
 // Creating client, using the list of address in: naming_service
 const { getService } = require("../naming_service");
-const client = new activityProto.ActivityNotificationService(
-  getService("activityNotification"),
+const client = new userTrainingProto.UserTrainingService(
+  getService("userTraining"),
   grpc.credentials.createInsecure()
 );
 
