@@ -17,6 +17,17 @@ const packageDefinition =protoLoader.loadSync(PROTO_PATH);
 //Creating an object so we need to convert the proto
 const userTrainingProto=grpc.loadPackageDefinition (packageDefinition).usertraining;
 
+// Training durations in days, so the system can calculate the due date automatically
+const trainingDurations = {
+    "Basic Computer Skills": 30,
+    "Introduction to Excel": 21,
+    "Interview Preparation and How to Write a CV": 14,
+    "Introduction to Email and the Internet": 14,
+    "LinkedIn Profile Setup": 7,
+    "Project Management Basics": 30,
+    "Excel Advanced": 21,
+    "Introduction to Digital Marketing": 30
+};
 
 //Implementing the Unary RPC:
 
@@ -46,6 +57,12 @@ if (!request.trainingTitle){
     });
     return;
 }
+
+// Calculating due date automatically based on training duration
+const durationDays= trainingDurations[request.trainingTitle] || 30;
+const dueDate= new Date();
+dueDate.setDate(dueDate.getDate() + durationDays);
+const dueDateString= dueDate.toISOString().split("T")[0];
 
 //Generating the enrolment ID
 const enrollmentId= "ENR-" + request.userId + "-" + Date.now();
