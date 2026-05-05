@@ -86,34 +86,39 @@ const recommendationsByAge={ "18-30": [
 function streamRecommendedTrainings(call) {
     const request = call.request;
 
-    // Basic validation
+  // Reading metadata sent by the client
+  const clientVersion = call.metadata.get("client-version");
+  const requestTimestamp = call.metadata.get("timestamp");
+  console.log("Metadata received - Client version:", clientVersion, "| Timestamp:", requestTimestamp);
+ 
+
+  // Handling cancellation - if the client cancels the request, this runs
+  call.on("cancelled",() => { console.log("Request was cancelled by the client");
+  });
+ 
+  // Validation using gRPC status codes
+  // if invalid then INVALID_ARGUMENT will be shown
   if (!request.userId || request.userId <= 0) {
-    call.write({
-      trainingId: 0,
-      trainingTitle: "Sorry, The User ID is invalid!",
-      reason: "User ID must be a positive number.",
-      durationHours: 0
+    call.destroy({
+      code: grpc.status.INVALID_ARGUMENT,
+      message: "User ID must be a positive number."
     });
-    call.end();
     return;
   }
+
 
 // Get recommendations based on age group
 const recommendations = recommendationsByAge[request.ageGroup];
 
 // If age group not found
-    if (!recommendations) {
-    call.write({
-      trainingId: 0,
-      trainingTitle: "No recommendations found",
-      reason: "Please select a valid age group.",
-      durationHours: 0
+  if (!recommendations) { call.destroy({
+      code: grpc.status.NOT_FOUND,
+      message: "No recommendations found for this age group. Please select a valid age group."
     });
-    call.end();
     return;
   }
 
-// Sending recommendations one by one
+// Sending recommendations one by one (server-side streaming)
 recommendations.forEach((training) => {
 call.write(training);
 });

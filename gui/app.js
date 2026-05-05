@@ -55,6 +55,23 @@ const activityClient = new activityProto.ActivityNotificationService(
   grpc.credentials.createInsecure()
 );
 
+// This function below will help to create metadata, which is the extra information in the header of each gRPC call
+
+function createMetadata() {
+  const metadata = new grpc.Metadata();
+  metadata.add("client-version", "1.0");
+  metadata.add("timestamp", new Date().toISOString());
+  return metadata;
+}
+ 
+// This function below is to create a dealine,for exemple the timeout when do not have interaction with the user in a period
+// if not interactionm, then the call will be cancelled
+function createDeadline(seconds) {
+  const deadline = new Date();
+  deadline.setSeconds(deadline.getSeconds() + seconds);
+  return deadline;
+}
+
 // MAIN - Home page
 
 // When the user opens http://localhost:3000, so it runs
@@ -82,8 +99,14 @@ app.post("/assign-training", (req, res) => {
     dueDate: ""
   };
 
+// Creating metadata and deadline for this call
+// Deadline of 8 seconds, so if the server does not respond in 5 seconds, then the call is cancelled
+  const metadata = createMetadata();
+  const options = { deadline: createDeadline(8) };
+ 
+
   // Calling the Unary RPC - sends one request and receives one response
-  userTrainingClient.AssignTraining(request, (error, response) => {
+  userTrainingClient.AssignTraining(request, metadata, options, (error, response) => {
 
     // If we have an error
     if (error) {
@@ -123,8 +146,14 @@ app.post("/get-recommendations", (req, res) => {
   // To make sure we only send one response to the page
   let responseSent = false;
 
+// Creating metadata and deadline for this call
+// Deadline of 8 seconds, so if the server does not respond in 5 seconds, then the call is cancelled
+  const metadata = createMetadata();
+  const options = { deadline: createDeadline(8) };
+
+
   // Calling the Server-side Streaming RPC
-  const call = trainingSuggestionClient.StreamRecommendedTrainings(userProfile);
+  const call = trainingSuggestionClient.StreamRecommendedTrainings(userProfile, metadata, options);
 
   // Every time the server sends one recommendation, so this runs
   call.on("data", (recommendation) => {recommendations.push(recommendation);
@@ -165,9 +194,12 @@ app.post("/upload-activity", (req, res) => {
 // Flag to make sure we only send one response to the page
   let responseSent = false;
 
-  // Calling the Client-side Streaming RPC
-  // When the server sends the final summary, this runs
-  const call = activityClient.UploadUserActivity((error, response) => {
+// Creating metadata for this call
+const metadata = createMetadata();
+
+// Calling the Client-side Streaming RPC
+// When the server sends the final summary, this runs
+const call = activityClient.UploadUserActivity(metadata, (error, response) => {
 
     if (!responseSent) {
       responseSent = true;

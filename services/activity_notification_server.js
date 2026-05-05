@@ -19,9 +19,24 @@ function uploadUserActivity(call, callback){
     let totalActivities = 0;
     let totalScore = 0;
 
-// If condition, so every time it will run when the client send a new activity
-call.on("data", (activity) => {
-    totalActivities++;
+// Reading metadata sent by the client
+const clientVersion = call.metadata.get("client-version");
+const requestTimestamp = call.metadata.get("timestamp");
+  console.log("Metadata received - Client version:", clientVersion, "| Timestamp:", requestTimestamp);
+ 
+// Every time the client sends a new activity, this runs
+  call.on("data", (activity) => {
+  totalActivities++;
+ 
+    // Validation using gRPC status codes
+    // if invalid then "INVALID_ARGUMENT" will be shown
+    if (activity.userId <= 0) {
+      callback({
+        code: grpc.status.INVALID_ARGUMENT,
+        message: "Sorry, The User ID is invalid! Please enter a positive number."
+      });
+      return;
+    }
 
 // Add the score if the activity has one
     if (activity.score) {totalScore += activity.score;
@@ -65,11 +80,24 @@ call.on("data", (activity) => {
 // Below is the implementation of the bidirectional streaming RPC, so client can send and receive messages
 function liveSupportChat(call){
 
-  // The below will run every time the client sends a message on the chat
+// Reading metadata sent by the client
+const clientVersion = call.metadata.get("client-version");
+  console.log("Live Support Chat started - Client version:", clientVersion);
+ 
+// The below will run every time the client sends a message on the chat
   call.on("data", (message) => {
     console.log("Your message was received:", message);
+ 
+// Validation using gRPC status codes
+  if (!message.messageText || message.messageText.trim() === "") {
+    call.destroy({
+      code: grpc.status.INVALID_ARGUMENT,
+      message: "Message cannot be empty."
+    });
+    return;
+  }
 
-    // Response that will be sent back to the client
+  // Response that will be sent back to the client
     call.write({
       userId: message.userId,
       messageText: "Support: We have received your message " + message.messageText,
@@ -77,15 +105,20 @@ function liveSupportChat(call){
     });
   });
 
-  // This runs when the client ends the chat
-  call.on("end", () =>{
+// This runs when the client ends the chat
+    call.on("end", () => {
     console.log("Chat ended");
     call.end();
   });
-
+ 
   // Error handling
-  call.on("error", (error) =>{
-    console.error("Error:", error);
+  call.on("error", (error) => {
+    console.error("Chat error:", error);
+  });
+ 
+  // Handling cancellation
+  call.on("cancelled", () => {
+    console.log("Chat was cancelled by the client");
   });
 }
 

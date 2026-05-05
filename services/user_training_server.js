@@ -34,29 +34,33 @@ const trainingDurations = {
 //Creating a function that will be responsible for handling AssignTraining Requests
 function assignTraining(call, callback){
     
-    //getting data from the user
-    const request=call.request;
+//getting data from the user
+const request=call.request;
     
+// Reading metadata sent by the client
+// Metadata can contain extra information like client version or timestamp
+  const clientVersion = call.metadata.get("client-version");
+  const requestTimestamp = call.metadata.get("timestamp");
+  console.log("Metadata received - Client version:", clientVersion, "| Timestamp:", requestTimestamp);
 
-//Validation and error handling
-if (!request.userId || request.userId <=0){
-    callback(null,{
-        enrollmentId: "",
-        success:false,
-        message: "Sorry, The User ID is invalid! Please enter a positive number."
-        });
-        return;
-}
-
-//Checking if the training title is valid
-if (!request.trainingTitle){
-    callback(null,{
-        enrollmentId: "",
-        success: false,
-        message: "Please enter the Training Title!"
+// Validation and error handling using gRPC status codes
+// INVALID_ARGUMENT is the correct gRPC code when the input data is not valid
+    if (!request.userId || request.userId <= 0) {
+    callback({
+      code: grpc.status.INVALID_ARGUMENT,
+      message: "Sorry, The User ID is invalid! Please enter a positive number."
     });
     return;
-}
+    }
+
+//Checking if the training title is valid
+    if (!request.trainingTitle) {
+    callback({
+      code: grpc.status.INVALID_ARGUMENT,
+      message: "Please select a Training!"
+    });
+    return;
+    }
 
 // Calculating due date automatically based on training duration
 const durationDays= trainingDurations[request.trainingTitle] || 30;
